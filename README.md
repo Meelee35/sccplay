@@ -10,6 +10,8 @@ Arguments (Optional):
 -s --shuffle    Use this argument to shuffle
 -l --loop       Use this argument to loop
 
+Place the executable somewhere in your system path so you can run it from anywhere!
+
 # Building
 
 This was built with pyinstaller
