@@ -1,6 +1,12 @@
 # sccplay
 Run a playlist of midi files through GXSCC.
 
+Requires GXSCC to be installed and added to the system path!
+
+Download GXSCC here (Get the installer): https://meme.institute/gxscc/
+Go to the directory where you installed it to (usually C:\Program Files (x86)\GXSCC\) and verify that gxscc.exe is present
+Add the correct directory to the system path and you're done!
+
 # Usage
 
 sccplay [-h] [-d DIR] [-s] [-l,]
