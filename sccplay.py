@@ -44,7 +44,7 @@ def main():
   parser = argparse.ArgumentParser(description='Play a playlist of midi files in GXSCC.')
   parser.add_argument('-d', '--dir', help='Optional: Midi Directory', default='')
   parser.add_argument('-s', '--shuffle', help='Optional: Shuffle Midi files', action='store_true')
-  parser.add_argument('-l,', '--loop', help='Optional: Loop Midi files', action='store_true')
+  parser.add_argument('-l', '--loop', help='Optional: Loop Midi files', action='store_true')
   args = parser.parse_args()
   
   # Edge case: gxscc not in path
