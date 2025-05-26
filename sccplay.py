@@ -51,7 +51,20 @@ def main():
     print("GXSCC was not found in the PATH.", flush=True)
     sys.exit(1)
     
-  # Launch gxscc beforehand to avoid delay
+  # Did the user specify a directory
+  if args.dir == '':
+    directory = os.getcwd()
+  else:
+    directory = args.dir
+  loop = args.loop
+
+  # Check if the directory has any midi files at all
+  midi_files = get_midi_files(directory)
+  if not midi_files:
+    print("No MIDI files found in the specified directory.", flush=True)
+    return
+  
+    # Launch gxscc beforehand to avoid delay
   print("Launching GXSCC...", flush=True)
   try:
     subprocess.Popen(['gxscc'], shell=True)
@@ -76,24 +89,12 @@ def main():
   
   signal.signal(signal.SIGINT, signal_handler)
 
-  # Did the user specify a directory
-  if args.dir == '':
-    directory = os.getcwd()
-  else:
-    directory = args.dir
-  loop = args.loop
-
-  # Check if the directory has any midi files at all
-  midi_files = get_midi_files(directory)
-  if not midi_files:
-    print("No MIDI files found in the specified directory.", flush=True)
-    return
-
   # Tell the user how many midi files are found, mainly for debug reasons
   print(f"Found {len(midi_files)} MIDI files in the directory: {directory}", flush=True)
 
   # Shuffle the list if wanted
   if args.shuffle:
+    print("Shuffling midi files", flush=True)
     random.shuffle(midi_files)
   
   print("Generating lengths for MIDI files...", flush=True)
