@@ -50,6 +50,31 @@ def main():
   if shutil.which('gxscc') is None:
     print("GXSCC was not found in the PATH.", flush=True)
     sys.exit(1)
+    
+  # Launch gxscc beforehand to avoid delay
+  print("Launching GXSCC...", flush=True)
+  try:
+    subprocess.Popen(['gxscc'], shell=True)
+  except Exception as e:
+    print(f"Failed to launch GXSCC.", flush=True)
+    sys.exit(e)
+  
+  # Minimise GXSCC. Don't do anything until it is minimised
+  minimised = False
+  while not minimised:
+    for win in gw.getWindowsWithTitle('GASHISOFT GXSCC'):
+      win.minimize()
+      minimised = True
+      break
+
+  # Setup ctrl+c handler
+  
+  def signal_handler(sig, frame):
+    print('Quitting...', flush=True)
+    subprocess.call(['taskkill', '/F', '/IM', 'gxscc.exe'])
+    sys.exit(0)
+  
+  signal.signal(signal.SIGINT, signal_handler)
 
   # Did the user specify a directory
   if args.dir == '':
@@ -80,31 +105,16 @@ def main():
   print("------------------------", flush=True)
   print("Starting playback... \n Press Ctrl+C to stop.", flush=True)
   
-  # Make it so using ctrl + c to quit will also close gxscc
-  def signal_handler(sig, frame):
-    print('Quitting...', flush=True)
-    subprocess.call(['taskkill', '/F', '/IM', 'gxscc.exe'])
-    sys.exit(0)
-  
-  signal.signal(signal.SIGINT, signal_handler)
-  
   # Open midi file, play it, wait, repeat
   while True:
     for midi_file, length in midi_lengths:
       if length is not None:
         # This subprocess is not well made
-        proc = subprocess.Popen(['cmd', '/c', 'start', '/min', 'gxscc', midi_file], shell=True)
+        subprocess.Popen(['cmd', '/c', 'start', '/min', 'gxscc', midi_file], shell=True)
         print(flush=True)
         print(f"Playing {os.path.basename(midi_file)} for {round(length)} seconds...", flush=True)
-        
-        # Give gxscc a moment.
-        time.sleep(0.5)
-          
-        for win in gw.getWindowsWithTitle('GASHISOFT GXSCC'):
-          win.minimize()
-          break
-
-        time.sleep(length - 0.5)
+        # Wait for the midi file to finish playing
+        time.sleep(length)
       else:
         # Say if a midi file was skipped
         print(f"Skipping {os.path.basename(midi_file)} due to length being None.", flush=True)
