@@ -1,4 +1,4 @@
-# Do not touch these imports! They might topple like dominoes!
+# There's probably a better way to write this without so many imports
 import argparse
 import mido
 import os
@@ -11,12 +11,12 @@ import signal
 import shutil
 import pygetwindow as gw
 
-# Cheers chatGPT. Only time its been used so dont complain.
+# I am going to admit this is the first and only time chatgpt was used here. This code just iterates through all files in adirectory and adds midi files to an array.
 def get_midi_files(directory):
     p = Path(directory)
     return [str(f) for f in p.iterdir() if f.is_file() and f.suffix.lower() in ['.mid', '.midi']]
 
-# Get the length of the midi file in seconds. We don't talk about type 2 midi files, to put it simply: they're weird.
+# Get the length of midi files, Type 2 midi files are weird so they are ignored
 def get_midi_length_seconds(midi_file):
     mid = mido.MidiFile(midi_file)
     try:
@@ -25,7 +25,7 @@ def get_midi_length_seconds(midi_file):
         print(f"Cannot get length for asynchronous (type 2) MIDI: {midi_file}", flush=True)
         return None
 
-# Generate lengths for every midi file in the list. If a genie appeared I would wish for the ability to detect when gxscc finishes playing.
+# Get the lengths of all the midi files so we can know when they end
 def generate_lengths(midi_files):
     lengths = []
     for midi_file in midi_files:
@@ -39,52 +39,48 @@ def generate_lengths(midi_files):
 
 
 def main():
-  # Can my code stop arguing?
+  # Command line arguments
   parser = argparse.ArgumentParser(description='Play a playlist of midi files in GXSCC.')
   parser.add_argument('-d', '--dir', help='Optional: Midi Directory', default='')
   parser.add_argument('-s', '--shuffle', help='Optional: Shuffle Midi files', action='store_true')
   parser.add_argument('-l', '--loop', help='Optional: Loop Midi files', action='store_true')
   args = parser.parse_args()
   
-  # Edge case: gxscc not in path. Help!
+  # Edge case: gxscc not in path.
   if shutil.which('gxscc') is None:
     print("GXSCC was not found in the PATH.", flush=True)
     sys.exit(1)
 
-  # did you specify a directory?
+  # Did the user specify a directory
   if args.dir == '':
     directory = os.getcwd()
   else:
     directory = args.dir
-  
-  # Was throwing errors using args.loop further down
   loop = args.loop
 
-  # Where are my midi files?
+  # Check if the directory has any midi files at all
   midi_files = get_midi_files(directory)
   if not midi_files:
-    # There are no midi files!
     print("No MIDI files found in the specified directory.", flush=True)
     return
 
-  # We do like some logging, so lets log how many midi files we found and in what directory.
+  # Tell the user how many midi files are found, mainly for debug reasons
   print(f"Found {len(midi_files)} MIDI files in the directory: {directory}", flush=True)
 
-  # This shuffles better than the card dealer at the casino, but only if you want it to.
+  # Shuffle the list if wanted
   if args.shuffle:
     random.shuffle(midi_files)
   
-  # We tell the user what we do, although it goes so fast you can't see it!
   print("Generating lengths for MIDI files...", flush=True)
-  # Generate isn't really the right word, maybe scan? We scan the midi files for their lengths.
+  # Store lengths in array
   midi_lengths = generate_lengths(midi_files)
   print("Lengths generated for MIDI files.", flush=True)
 
-  # Distinct separation from the debug logging above. Gives the logs some space to breathe.
+  # This is the part the user will actually be able to see
   print("------------------------", flush=True)
   print("Starting playback... \n Press Ctrl+C to stop.", flush=True)
   
-  # Take a look at this nice ctrl+c handling. Could probably go in a museum.      
+  # Make it so using ctrl + c to quit will also close gxscc
   def signal_handler(sig, frame):
     print('Quitting...', flush=True)
     subprocess.call(['taskkill', '/F', '/IM', 'gxscc.exe'])
@@ -92,27 +88,25 @@ def main():
   
   signal.signal(signal.SIGINT, signal_handler)
   
-  # Welcome to the jank zone. Have a terrible time here!
-  # Anyway, it loops through the midi files, plays them, waits, then plays the next one.
+  # Open midi file, play it, wait, repeat
   while True:
     for midi_file, length in midi_lengths:
       if length is not None:
-        # I don't think i need to run subprocess like this but it does work.
+        # This subprocess is not well made
         proc = subprocess.Popen(['cmd', '/c', 'start', '/min', 'gxscc', midi_file], shell=True)
         print(flush=True)
         print(f"Playing {os.path.basename(midi_file)} for {round(length)} seconds...", flush=True)
         
-        # Give gxscc a moment. He's old now. Let me know if it doesn't minimise.
+        # Give gxscc a moment.
         time.sleep(0.5)
-        
-        # For some reason /min only works the next time its opened, as i was originally killing gxscc each time i wanted to play a new song. Figured out i dont need that.
+          
         for win in gw.getWindowsWithTitle('GASHISOFT GXSCC'):
           win.minimize()
           break
 
         time.sleep(length - 0.5)
       else:
-        # How much logging does one need? This is getting ridiculous.
+        # Say if a midi file was skipped
         print(f"Skipping {os.path.basename(midi_file)} due to length being None.", flush=True)
     if not loop:
       print("Finished playing all MIDI files. Exiting.", flush=True)
@@ -121,9 +115,7 @@ def main():
     print("Finished! Looping...", flush=True)
 
 
-# I really don't think this is necessary but some dude might want to import this!
+# Not necessary, who would want to import this?
 if __name__ == '__main__':
   main()
 
-
-# Phew! That was a lot. What nerd even reads all the code anyway?!
