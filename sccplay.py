@@ -131,7 +131,6 @@ def main():
             stderr=subprocess.DEVNULL,
         )
 
-        print('gxscc ' + f'"{midi_file}"')
         print(flush=True)
         print(f"Playing {os.path.basename(midi_file)} for {round(length)} seconds...", flush=True)
         # Wait for the midi file to finish playing
