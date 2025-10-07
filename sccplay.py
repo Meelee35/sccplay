@@ -49,7 +49,7 @@ def main():
   
   # Edge case: gxscc not in path.
   if shutil.which('gxscc') is None:
-    print("GXSCC was not found in the PATH.", flush=True)
+    print("GXSCC was not found in \"~/.local/bin\" or \"/usr/local/bin\".", flush=True)
     sys.exit(1)
     
   # Did the user specify a directory
@@ -78,7 +78,7 @@ def main():
   
   def signal_handler(sig, frame):
     print('Quitting...', flush=True)
-    subprocess.call(['taskkill', '/F', '/IM', 'gxscc.exe'])
+    subprocess.call(['pkill', '-f', 'gxscc.exe'])
     sys.exit(0)
   
   signal.signal(signal.SIGINT, signal_handler)
@@ -104,8 +104,15 @@ def main():
   while True:
     for midi_file, length in midi_lengths:
       if length is not None:
-        # This subprocess is not well made
-        subprocess.Popen(['cmd', '/c', 'start', '/min', 'gxscc', midi_file], shell=True)
+        wine_path = "Z:" + midi_file.replace("/", "\\")
+        subprocess.Popen(
+            ['gxscc', wine_path],               # <- NO extra quotes
+            env={**os.environ, 'WINEDEBUG': '-all'},
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+        print('gxscc ' + f'"{midi_file}"')
         print(flush=True)
         print(f"Playing {os.path.basename(midi_file)} for {round(length)} seconds...", flush=True)
         # Wait for the midi file to finish playing
@@ -115,7 +122,7 @@ def main():
         print(f"Skipping {os.path.basename(midi_file)} due to length being None.", flush=True)
     if not loop:
       print("Finished playing all MIDI files. Exiting.", flush=True)
-      subprocess.call(['taskkill', '/F', '/IM', 'gxscc.exe'])
+      subprocess.call(['pkill', '-f', 'gxscc.exe'])
       break
     print("Finished! Looping...", flush=True)
 
