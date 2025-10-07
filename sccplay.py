@@ -1,3 +1,5 @@
+# LINUX BUILD. This is the LINUX version of SCCPlay. It is currently under construction.
+
 # There's probably a better way to write this without so many imports
 import argparse
 import mido
@@ -9,7 +11,6 @@ import time
 import sys
 import signal
 import shutil
-import pygetwindow as gw
 
 # I am going to admit this is the first and only time chatgpt was used here. This code just iterates through all files in adirectory and adds midi files to an array.
 def get_midi_files(directory):
@@ -71,14 +72,7 @@ def main():
   except Exception as e:
     print(f"Failed to launch GXSCC.", flush=True)
     sys.exit(e)
-  
-  # Minimise GXSCC. Don't do anything until it is minimised
-  minimised = False
-  while not minimised:
-    for win in gw.getWindowsWithTitle('GASHISOFT GXSCC'):
-      win.minimize()
-      minimised = True
-      break
+
 
   # Setup ctrl+c handler
   
