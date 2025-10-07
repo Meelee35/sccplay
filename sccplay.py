@@ -1,6 +1,5 @@
 # LINUX BUILD. This is the LINUX version of SCCPlay. It is currently under construction.
 
-# There's probably a better way to write this without so many imports
 import argparse
 import mido
 import os
