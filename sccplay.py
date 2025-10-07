@@ -97,7 +97,7 @@ def main():
   
   def signal_handler(sig, frame):
     print('Quitting...', flush=True)
-    subprocess.call(['pkill', '-f', 'gxscc.exe'])
+    subprocess.call(['pkill', '-f', 'wine.*gxscc.exe'])
     sys.exit(0)
   
   signal.signal(signal.SIGINT, signal_handler)
@@ -141,7 +141,7 @@ def main():
         print(f"Skipping {os.path.basename(midi_file)} due to length being None.", flush=True)
     if not loop:
       print("Finished playing all MIDI files. Exiting.", flush=True)
-      subprocess.call(['pkill', '-f', 'gxscc.exe'])
+      subprocess.call(['pkill', '-f', 'wine.*gxscc.exe'])
       break
     print("Finished! Looping...", flush=True)
 
