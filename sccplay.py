@@ -72,7 +72,26 @@ def main():
   except Exception as e:
     print(f"Failed to launch GXSCC.", flush=True)
     sys.exit(e)
-
+  print("Waiting for GXSCC to launch...", flush=True)
+  secs = 0
+  while True:
+      try:
+          uuid = subprocess.check_output(['kdotool', 'search', '--name', 'GXSCC']).decode().strip()
+          if uuid != '':
+            print("GXSCC launched successfully.", flush=True)
+            break
+          else:
+            if secs.is_integer():
+              print(f"Waiting {int(secs)} seconds...", flush=True)
+      except subprocess.CalledProcessError:
+          print("GXSCC window not found.")
+      time.sleep(0.5)
+      secs += 0.5
+      if secs > 20:
+        print("GXSCC took too long. Exiting.", flush=True)
+        subprocess.call(['pkill', '-f', 'gxscc.exe'])
+        sys.exit(1)
+  subprocess.call(['kdotool', 'windowminimize', f'{uuid}'])
 
   # Setup ctrl+c handler
   
