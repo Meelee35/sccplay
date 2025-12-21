@@ -1,0 +1,16 @@
+015c:fixme:winediag:loader_init wine-staging 10.20 is a testing version containing experimental patches.
+015c:fixme:winediag:loader_init Please mention your exact version when filing bug reports on winehq.org.
+0164:err:environ:init_peb starting L"Z:\\home\\jbaines\\.local\\bin\\gxscc" in experimental wow64 mode
+0188:fixme:console:default_ctrl_handler Terminating process 160 on event 0
+002c:fixme:winediag:loader_init wine-staging 10.20 is a testing version containing experimental patches.
+002c:fixme:winediag:loader_init Please mention your exact version when filing bug reports on winehq.org.
+00b8:fixme:xinput:pdo_pnp code 0xc, not implemented!
+00b8:fixme:xinput:pdo_pnp code 0xc, not implemented!
+0024:fixme:winediag:loader_init wine-staging 10.20 is a testing version containing experimental patches.
+0024:fixme:winediag:loader_init Please mention your exact version when filing bug reports on winehq.org.
+0140:err:environ:init_peb starting L"Z:\\home\\jbaines\\.local\\bin\\gxscc" in experimental wow64 mode
+016c:fixme:console:default_ctrl_handler Terminating process 13c on event 0
+0174:fixme:winediag:loader_init wine-staging 10.20 is a testing version containing experimental patches.
+0174:fixme:winediag:loader_init Please mention your exact version when filing bug reports on winehq.org.
+0180:fixme:winediag:loader_init wine-staging 10.20 is a testing version containing experimental patches.
+0180:fixme:winediag:loader_init Please mention your exact version when filing bug reports on winehq.org.

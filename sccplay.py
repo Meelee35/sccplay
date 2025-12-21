@@ -12,6 +12,10 @@ import sys
 import signal
 import shutil
 
+def vprint(*args, **kwargs):
+   if VERBOSE:
+      print("[VERBOSE]", *args, **kwargs)
+
 # I am going to admit this is the first and only time chatgpt was used here. This code just iterates through all files in adirectory and adds midi files to an array.
 def get_midi_files(directory):
     p = Path(directory)
@@ -33,7 +37,7 @@ def generate_lengths(midi_files):
         try:
             length = get_midi_length_seconds(midi_file)
             lengths.append((midi_file, length))
-            print(f"{os.path.basename(midi_file)}: {length} seconds", flush=True)
+            vprint(f"{os.path.basename(midi_file)}: {length} seconds", flush=True)
         except Exception as e:
             print(f"Error processing {midi_file}: {e}", flush=True)
     return lengths
@@ -41,10 +45,11 @@ def generate_lengths(midi_files):
 
 def main():
   # Command line arguments
-  parser = argparse.ArgumentParser(description='Play a playlist of midi files in GXSCC.')
-  parser.add_argument('-d', '--dir', help='Optional: Midi Directory', default='')
-  parser.add_argument('-s', '--shuffle', help='Optional: Shuffle Midi files', action='store_true')
-  parser.add_argument('-l', '--loop', help='Optional: Loop Midi files', action='store_true')
+  parser = argparse.ArgumentParser(description="Play a playlist of midi files in GXSCC.")
+  parser.add_argument("-d", "--dir", help="Optional: Midi Directory", default="")
+  parser.add_argument("-s", "--shuffle", help="Optional: Shuffle Midi files", action="store_true")
+  parser.add_argument("-l", "--loop", help="Optional: Loop Midi files", action="store_true")
+  parser.add_argument("-v", "--verbose", help="Optional: Verbose Output", action="store_true")
   args = parser.parse_args()
   
   # Edge case: gxscc not in path.
@@ -59,6 +64,12 @@ def main():
     directory = args.dir
   loop = args.loop
 
+  global VERBOSE
+  if args.verbose:
+    VERBOSE = True
+  else:
+    VERBOSE = False
+
   # Check if the directory has any midi files at all
   midi_files = get_midi_files(directory)
   if not midi_files:
@@ -68,7 +79,12 @@ def main():
     # Launch gxscc beforehand to avoid delay
   print("Launching GXSCC...", flush=True)
   try:
-    subprocess.Popen(['gxscc'], shell=True)
+    subprocess.Popen(
+        ['nohup', 'gxscc'],
+        stdout=subprocess.DEVNULL,   # redirect stdout
+        stderr=subprocess.DEVNULL,   # redirect stderr
+        stdin=subprocess.DEVNULL     # optional, avoids "ignoring input"
+    )
   except Exception as e:
     print(f"Failed to launch GXSCC.", flush=True)
     sys.exit(e)
@@ -82,7 +98,7 @@ def main():
             break
           else:
             if secs.is_integer():
-              print(f"Waiting {int(secs)} seconds...", flush=True)
+              vprint(f"Waiting {int(secs)} seconds...", flush=True)
       except subprocess.CalledProcessError:
           print("GXSCC window not found.")
       time.sleep(0.5)
@@ -93,7 +109,7 @@ def main():
         sys.exit(1)
   subprocess.call(['kdotool', 'windowminimize', f'{uuid}'])
 
-  # Setup ctrl+c handler
+  # Set up ctrl+c handler
   
   def signal_handler(sig, frame):
     print('Quitting...', flush=True)
@@ -107,13 +123,13 @@ def main():
 
   # Shuffle the list if wanted
   if args.shuffle:
-    print("Shuffling midi files", flush=True)
+    vprint("Shuffling midi files", flush=True)
     random.shuffle(midi_files)
   
-  print("Generating lengths for MIDI files...", flush=True)
+  vprint("Generating lengths for MIDI files...", flush=True)
   # Store lengths in array
   midi_lengths = generate_lengths(midi_files)
-  print("Lengths generated for MIDI files.", flush=True)
+  vprint("Lengths generated for MIDI files.", flush=True)
 
   # This is the part the user will actually be able to see
   print("------------------------", flush=True)
@@ -125,7 +141,7 @@ def main():
       if length is not None:
         wine_path = "Z:" + midi_file.replace("/", "\\")
         subprocess.Popen(
-            ['gxscc', wine_path],               # <- NO extra quotes
+            ['nohup', 'gxscc', wine_path],
             env={**os.environ, 'WINEDEBUG': '-all'},
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
